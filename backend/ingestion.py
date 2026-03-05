@@ -32,6 +32,32 @@ IGNORED_EXTENSIONS = {
     ".css", ".scss", ".yaml", ".yml", ".xml",
 }
 
+IGNORED_FILENAMES = {
+    "index.ts", "index.js",
+    "index.tsx", "index.jsx",
+    "vite.config.ts",
+    "eslint.config.js",
+    "eslint.config.mjs",
+    "jest.config.ts",
+    "jest.config.js",
+    ".gitignore",
+    ".env.example",
+    "index.html",
+    "migration_lock.toml",
+    "LICENSE",
+    ".prettierrc",
+    "app.e2e-spec.ts",
+    "mock-data.ts",
+}
+
+IGNORED_FOLDERS = {
+    ".git", "node_modules", "__pycache__",
+    "dist", "build", ".next", "coverage",
+    "venv", ".venv", "vendor",
+    "ui",
+    "migrations",
+}
+
 def get_language(file_path: str) -> str | None:
     ext = Path(file_path).suffix.lower()
     return EXTENSION_TO_LANGUAGE.get(ext, None)
