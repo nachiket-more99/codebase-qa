@@ -95,3 +95,70 @@ def ingest_file(file_path: str, file_content: str) -> dict:
         "chunks_created": len(chunks),
         "language": chunks[0]["metadata"]["language"]
     }
+    
+def ingest_multiple_files(files: list[dict]) -> dict:
+    import time
+
+    total_chunks = 0
+    ingested_files = []
+    failed_files = []
+    all_texts = []
+    all_metadatas = []
+
+    for file in files:
+        file_name = file["name"]
+        file_content = file["content"]
+
+        ext = Path(file_name).suffix.lower()
+        if ext in IGNORED_EXTENSIONS:
+            continue
+
+        if not file_content.strip():
+            continue
+
+        try:
+            chunks = chunk_file(file_name, file_content)
+
+            if not chunks:
+                continue
+
+            all_texts.extend([chunk["text"] for chunk in chunks])
+            all_metadatas.extend([chunk["metadata"] for chunk in chunks])
+
+            ingested_files.append({
+                "file": file_name,
+                "chunks": len(chunks),
+                "language": chunks[0]["metadata"]["language"]
+            })
+            total_chunks += len(chunks)
+
+        except Exception as e:
+            failed_files.append({"file": file_name, "error": str(e)})
+
+    BATCH_SIZE = 50
+    embeddings = OpenAIEmbeddings(
+        model=EMBEDDING_MODEL,
+        openai_api_key=OPENAI_API_KEY
+    )
+
+    for i in range(0, len(all_texts), BATCH_SIZE):
+        batch_texts = all_texts[i:i + BATCH_SIZE]
+        batch_metadatas = all_metadatas[i:i + BATCH_SIZE]
+
+        Chroma.from_texts(
+            texts=batch_texts,
+            metadatas=batch_metadatas,
+            embedding=embeddings,
+            persist_directory=CHROMA_DB_PATH,
+            collection_name=COLLECTION_NAME
+        )
+
+        time.sleep(0.5)
+
+    return {
+        "status": "success",
+        "total_files_ingested": len(ingested_files),
+        "total_chunks_created": total_chunks,
+        "ingested_files": ingested_files,
+        "failed_files": failed_files
+    }
