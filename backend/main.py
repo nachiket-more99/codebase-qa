@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from ingestion import ingest_file, ingest_multiple_files
+from pydantic import BaseModel
+from ingestion import ingest_file, ingest_multiple_files, ingest_github_repo
 
 app = FastAPI(title="Codebase Q&A API", version="1.0.0")
 
@@ -10,6 +11,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+class RepoRequest(BaseModel):
+    repo_url: str
 
 @app.get("/")
 def root():
@@ -52,4 +56,15 @@ async def ingest_multiple(files: list[UploadFile] = File(...)):
         raise HTTPException(status_code=400, detail="No readable files provided")
 
     result = ingest_multiple_files(files_data)
+    return result
+
+@app.post("/ingest-repo")
+def ingest_repo(request: RepoRequest):
+    if not request.repo_url.startswith("https://github.com/"):
+        raise HTTPException(
+            status_code=400,
+            detail="Please provide a valid GitHub URL starting with https://github.com/"
+        )
+
+    result = ingest_github_repo(request.repo_url)
     return result

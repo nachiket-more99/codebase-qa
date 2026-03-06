@@ -188,3 +188,67 @@ def ingest_multiple_files(files: list[dict]) -> dict:
         "ingested_files": ingested_files,
         "failed_files": failed_files
     }
+
+def ingest_github_repo(repo_url: str) -> dict:
+    import tempfile
+    import shutil
+    import git
+
+    temp_dir = tempfile.mkdtemp()
+
+    try:
+        print(f"Cloning {repo_url}...")
+        git.Repo.clone_from(repo_url, temp_dir)
+        print("Clone complete.")
+
+        files_data = []
+        for root, dirs, files in os.walk(temp_dir):
+            dirs[:] = [d for d in dirs if d not in IGNORED_FOLDERS]
+
+            for file_name in files:
+                file_path = os.path.join(root, file_name)
+                ext = Path(file_name).suffix.lower()
+
+                if ext in IGNORED_EXTENSIONS:
+                    continue
+
+                if file_name in IGNORED_FILENAMES:
+                    continue
+
+                if os.path.getsize(file_path) > 100_000:
+                    continue
+
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                except (UnicodeDecodeError, PermissionError):
+                    continue
+
+                if not content.strip():
+                    continue
+
+                relative_path = os.path.relpath(file_path, temp_dir)
+                relative_path = relative_path.replace("\\", "/")
+
+                files_data.append({
+                    "name": relative_path,
+                    "content": content
+                })
+
+        print(f"Found {len(files_data)} code files to ingest.")
+
+        result = ingest_multiple_files(files_data)
+        result["repo_url"] = repo_url
+        result["files_found"] = len(files_data)
+
+        return result
+
+    except git.exc.GitCommandError as e:
+        return {"status": "error", "message": f"Failed to clone repo: {str(e)}"}
+
+    except Exception as e:
+        return {"status": "error", "message": f"Ingestion failed: {str(e)}"}
+
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        print("Temp directory cleaned up.")
