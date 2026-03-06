@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from ingestion import ingest_file, ingest_multiple_files, ingest_github_repo
+from qa_chain import answer_question
 
 app = FastAPI(title="Codebase Q&A API", version="1.0.0")
 
@@ -11,6 +12,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+class QuestionModel(BaseModel):
+    question: str
+    top_k: int = 5
 
 class RepoRequest(BaseModel):
     repo_url: str
@@ -67,4 +72,16 @@ def ingest_repo(request: RepoRequest):
         )
 
     result = ingest_github_repo(request.repo_url)
+    return result
+
+@app.post("/ask")
+def ask(request: QuestionModel):
+    if not request.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty")
+
+    result = answer_question(request.question, top_k=request.top_k)
+
+    if result["status"] == "error":
+        raise HTTPException(status_code=500, detail=result["message"])
+
     return result
