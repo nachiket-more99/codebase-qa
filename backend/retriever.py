@@ -32,9 +32,11 @@ def retrieve_relevant_chunks(question: str, top_k: int = 5) -> list[dict]:
 
     chunks = []
     for document, score in results:
+        source = document.metadata.get("source", "unknown")
+        source = source.replace("\\", "/")  
         chunks.append({
             "text": document.page_content,
-            "source": document.metadata.get("source", "unknown"),
+            "source": source,
             "language": document.metadata.get("language", "unknown"),
             "chunk_index": document.metadata.get("chunk_index", 0),
             "similarity_score": round(score, 4)
