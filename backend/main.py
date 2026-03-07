@@ -1,7 +1,8 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from ingestion import ingest_file, ingest_multiple_files, ingest_github_repo
+from ingestion import ingest_file, ingest_multiple_files, ingest_github_repo, clear_collection
+from retriever import retrieve_relevant_chunks, is_vectorstore_empty
 from qa_chain import answer_question
 
 app = FastAPI(title="Codebase Q&A API", version="1.0.0")
@@ -23,6 +24,15 @@ class RepoRequest(BaseModel):
 @app.get("/")
 def root():
     return {"status": "running", "message": "Codebase Q&A API is live"}
+
+@app.get("/status")
+def status():
+    empty = is_vectorstore_empty()
+    return {
+        "status": "ready" if not empty else "empty",
+        "has_data": not empty,
+        "message": "Code is ingested and ready for questions" if not empty else "No code ingested yet. Use POST /ingest first."
+    }
 
 @app.post("/ingest")
 async def ingest(file: UploadFile = File(...)):
@@ -84,4 +94,11 @@ def ask(request: QuestionModel):
     if result["status"] == "error":
         raise HTTPException(status_code=500, detail=result["message"])
 
+    return result
+
+@app.delete("/clear")
+def clear():
+    result = clear_collection()
+    if result["status"] == "error":
+        raise HTTPException(status_code=500, detail=result["message"])
     return result
