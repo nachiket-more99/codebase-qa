@@ -252,3 +252,58 @@ def ingest_github_repo(repo_url: str) -> dict:
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
         print("Temp directory cleaned up.")
+
+def filter_files_with_llm(file_paths: list[str]) -> list[str]:
+    import json
+    from langchain_openai import ChatOpenAI
+    from langchain_core.messages import SystemMessage, HumanMessage
+
+    file_list = "\n".join(file_paths)
+
+    system = SystemMessage(content="""You are a code analysis assistant.
+Given a list of files from a software repository, return ONLY the files
+that contain meaningful source code worth indexing for a codebase Q&A tool.
+
+EXCLUDE:
+- Config files (.prettierrc, eslint.config, jest.config, vite.config etc)
+- Lock files, dotfiles, environment files (.env.example, .gitignore etc)
+- Generated or compiled output (dist/, build/)
+- Database migration files
+- Test fixtures and mock data files
+- License, readme, documentation files
+- Barrel/re-export only files (index.ts, index.js that just re-export)
+- Auto-generated UI component libraries (shadcn/ui, radix etc)
+- Package manager files (package.json, requirements.txt etc)
+
+INCLUDE:
+- Application source code with real business logic
+- API handlers, controllers, routes
+- Services and repositories
+- Database models and schemas
+- Custom hooks and utilities
+- Core application components you wrote
+- Guards, middleware, decorators
+- DTOs with meaningful validation logic
+
+Respond with ONLY a valid JSON array of file paths to keep.
+No explanation, no markdown, no code fences. Just the JSON array.""")
+
+    human = HumanMessage(content=f"Here are the repository files:\n\n{file_list}")
+
+    llm = ChatOpenAI(
+        model=LLM_MODEL,
+        openai_api_key=OPENAI_API_KEY,
+        temperature=0
+    )
+
+    response = llm.invoke([system, human])
+
+    try:
+        content = response.content.strip()
+        content = content.replace("```json", "").replace("```", "").strip()
+        filtered = json.loads(content)
+        print(f"LLM kept {len(filtered)} / {len(file_paths)} files")
+        return filtered
+    except Exception as e:
+        print(f"LLM filtering failed: {e}. Using original file list.")
+        return file_paths
