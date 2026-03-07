@@ -237,6 +237,12 @@ def ingest_github_repo(repo_url: str) -> dict:
 
         print(f"Found {len(files_data)} code files to ingest.")
 
+        all_file_paths = [f["name"] for f in files_data]
+        meaningful_paths = filter_files_with_llm(all_file_paths)
+        meaningful_paths_set = set(meaningful_paths)
+        files_data = [f for f in files_data if f["name"] in meaningful_paths_set]
+        print(f"Ingesting {len(files_data)} files after LLM filter.")
+
         result = ingest_multiple_files(files_data)
         result["repo_url"] = repo_url
         result["files_found"] = len(files_data)
