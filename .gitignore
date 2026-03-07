@@ -1,0 +1,32 @@
+type nul > .gitignore
+```
+
+Open it and paste this:
+```
+# Virtual environment
+venv/
+
+# Environment variables — NEVER commit your API key
+.env
+
+# ChromaDB local database
+backend/chroma_db/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code
+.vscode/
+
+# Test files
+*.ts
+*.js
+*.py
+!backend/*.py
+!test_*.py
+
+# OS
+.DS_Store
+Thumbs.db

@@ -21,9 +21,19 @@ class QuestionModel(BaseModel):
 class RepoRequest(BaseModel):
     repo_url: str
 
+
 @app.get("/")
 def root():
-    return {"status": "running", "message": "Codebase Q&A API is live"}
+    return {
+        "status": "running",
+        "message": "Codebase Q&A API is live",
+        "endpoints": {
+            "ingest": "POST /ingest - upload a code file",
+            "ask": "POST /ask - ask a question about the code",
+            "status": "GET /status - check if a file has been ingested",
+            "clear": "DELETE /clear - clear all ingested data"
+        }
+    }
 
 @app.get("/status")
 def status():
