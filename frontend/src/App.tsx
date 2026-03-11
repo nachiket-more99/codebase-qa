@@ -1,5 +1,6 @@
 import { useState } from "react"
 import StatusBar from "@/components/StatusBar"
+import IngestPanel from "@/components/IngestPanel"
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<"ingest" | "chat">("ingest")
@@ -49,9 +50,7 @@ export default function App() {
       {/* Main */}
       <main className="flex-1 overflow-hidden flex flex-col p-6">
         {activeTab === "ingest" ? (
-          <p style={{ color: "#64748b", fontFamily: "JetBrains Mono", fontSize: 12 }}>
-            Ingest panel coming soon
-          </p>
+          <IngestPanel />
         ) : (
           <p style={{ color: "#64748b", fontFamily: "JetBrains Mono", fontSize: 12 }}>
             Chat panel coming soon
