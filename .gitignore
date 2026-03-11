@@ -20,13 +20,6 @@ __pycache__/
 # VS Code
 .vscode/
 
-# Test files
-*.ts
-*.js
-*.py
-!backend/*.py
-!test_*.py
-
 # OS
 .DS_Store
 Thumbs.db
