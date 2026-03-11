@@ -1,4 +1,5 @@
 import { useState } from "react"
+import StatusBar from "@/components/StatusBar"
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<"ingest" | "chat">("ingest")
@@ -20,9 +21,7 @@ export default function App() {
             style={{ background: "#00e5a0", animation: "blink 1.1s steps(1) infinite" }}
           />
         </div>
-        <span style={{ fontSize: 11, color: "#64748b", fontFamily: "JetBrains Mono" }}>
-          backend status here
-        </span>
+        <StatusBar />
       </header>
 
       {/* Tabs */}
@@ -65,7 +64,7 @@ export default function App() {
         className="flex items-center gap-3 px-6 py-2 border-t"
         style={{ borderColor: "#1e2430", background: "#0e1014" }}
       >
-        <span style={{ fontSize: 10, color: "#334155", fontFamily: "JetBrains Mono" }}>
+        <span style={{ fontSize: 10, color: "#64748b", fontFamily: "JetBrains Mono" }}>
           GPT-4o-mini · text-embedding-3-small · ChromaDB · LangChain · FastAPI
         </span>
       </footer>
