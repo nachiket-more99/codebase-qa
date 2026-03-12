@@ -66,22 +66,53 @@ export default function ChatPanel() {
           <div ref={bottomRef} />
         </div>
 
-        {/* Input placeholder */}
+        {/* Input */}
         <div
           className="flex items-center gap-2 px-4 py-3 rounded"
           style={{ background: "#0e1014", border: "1px solid #1e2430" }}
         >
-          <span style={{ color: "#00e5a0", fontSize: 16 }}>$</span>
-          <span
+          <span style={{ color: "#00e5a0", fontSize: 16, paddingBottom: 4 }}>
+            $
+          </span>
+          <textarea
+            className="flex-1 bg-transparent outline-none resize-none text-sm"
             style={{
-              fontSize: 12,
-              color: "#334155",
               fontFamily: "JetBrains Mono",
+              color: "#e2e8f0",
+              lineHeight: 1.6,
+            }}
+            placeholder="ask a question about the codebase..."
+            rows={1}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+              }
+            }}
+          />
+          <button
+            className="flex items-center justify-center rounded font-bold transition-all"
+            style={{
+              width: 46,
+              height: 26,
+              fontSize: 20,
+              background: "#00e5a0",
+              color: "#000",
+              border: "1px solid #1e2430",
+              cursor: "pointer",
             }}
           >
-            input coming next...
-          </span>
+            →
+          </button>
         </div>
+        <p
+          style={{
+            fontSize: 10,
+            color: "#475569",
+            fontFamily: "JetBrains Mono",
+          }}
+        >
+          Enter to send · Shift+Enter for new line
+        </p>
       </div>
     </div>
   );
