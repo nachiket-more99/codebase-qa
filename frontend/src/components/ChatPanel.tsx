@@ -1,32 +1,33 @@
-import { useState, useRef, useEffect } from "react"
-import { askQuestion } from "@/services/chat"
+import ReactMarkdown from "react-markdown";
+import { useState, useRef, useEffect } from "react";
+import { askQuestion } from "@/services/chat";
 
 type Message = {
-  role: "user" | "assistant" | "thinking"
-  content: string
-  sources?: string[]
-}
+  role: "user" | "assistant" | "thinking";
+  content: string;
+  sources?: string[];
+};
 
 export default function ChatPanel() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState("")
-  const [loading, setLoading] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const sendMessage = async (text?: string) => {
-    const q = text ?? input.trim()
-    if (!q || loading) return
-    setInput("")
-    setMessages((prev) => [...prev, { role: "user", content: q }])
-    setMessages((prev) => [...prev, { role: "thinking", content: "" }])
-    setLoading(true)
+    const q = text ?? input.trim();
+    if (!q || loading) return;
+    setInput("");
+    setMessages((prev) => [...prev, { role: "user", content: q }]);
+    setMessages((prev) => [...prev, { role: "thinking", content: "" }]);
+    setLoading(true);
 
     try {
-      const data = await askQuestion(q)
+      const data = await askQuestion(q);
       setMessages((prev) => [
         ...prev.filter((m) => m.role !== "thinking"),
         {
@@ -34,41 +35,62 @@ export default function ChatPanel() {
           content: data.answer,
           sources: data.sources?.map((s: any) => s.file) ?? [],
         },
-      ])
+      ]);
     } catch (err: any) {
       setMessages((prev) => [
         ...prev.filter((m) => m.role !== "thinking"),
         { role: "assistant", content: `Error: ${err.message}` },
-      ])
+      ]);
     }
 
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <div className="flex h-full gap-4 overflow-hidden">
-
       {/* Sidebar */}
       <div
         className="flex flex-col gap-4 flex-shrink-0 p-4 rounded"
-        style={{ width: 200, background: "#0e1014", border: "1px solid #1e2430" }}
+        style={{
+          width: 200,
+          background: "#0e1014",
+          border: "1px solid #1e2430",
+        }}
       >
-        <p style={{ fontSize: 10, color: "#475569", fontFamily: "JetBrains Mono", letterSpacing: "0.1em" }}>
+        <p
+          style={{
+            fontSize: 10,
+            color: "#475569",
+            fontFamily: "JetBrains Mono",
+            letterSpacing: "0.1em",
+          }}
+        >
           // suggestions
         </p>
       </div>
 
       {/* Main */}
       <div className="flex flex-col flex-1 overflow-hidden gap-3">
-
         {/* Messages */}
         <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full gap-2">
-              <p style={{ fontSize: 13, color: "#475569", fontFamily: "JetBrains Mono" }}>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "#475569",
+                  fontFamily: "JetBrains Mono",
+                }}
+              >
                 // no messages yet
               </p>
-              <p style={{ fontSize: 11, color: "#475569", fontFamily: "JetBrains Mono" }}>
+              <p
+                style={{
+                  fontSize: 11,
+                  color: "#475569",
+                  fontFamily: "JetBrains Mono",
+                }}
+              >
                 ingest a codebase and start asking questions
               </p>
             </div>
@@ -83,7 +105,10 @@ export default function ChatPanel() {
                   fontSize: 9,
                   fontWeight: 700,
                   letterSpacing: "0.12em",
-                  background: msg.role === "user" ? "rgba(245,158,11,0.1)" : "rgba(0,229,160,0.1)",
+                  background:
+                    msg.role === "user"
+                      ? "rgba(245,158,11,0.1)"
+                      : "rgba(0,229,160,0.1)",
                   color: msg.role === "user" ? "#f59e0b" : "#00e5a0",
                   border: `1px solid ${msg.role === "user" ? "rgba(245,158,11,0.2)" : "rgba(0,229,160,0.2)"}`,
                 }}
@@ -118,10 +143,43 @@ export default function ChatPanel() {
                         />
                       ))}
                     </div>
-                    <span style={{ fontSize: 12, color: "#475569" }}>retrieving context...</span>
+                    <span style={{ fontSize: 12, color: "#475569" }}>
+                      retrieving context...
+                    </span>
                   </div>
                 ) : (
-                  msg.content
+                  <div className="prose prose-sm prose-invert max-w-none">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                )}
+
+                {msg.sources && msg.sources.length > 0 && (
+                  <div
+                    className="flex flex-wrap gap-2 mt-3 pt-3"
+                    style={{ borderTop: "1px solid #1e2430" }}
+                  >
+                    {[...new Set(msg.sources)].map((source, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          fontFamily: "JetBrains Mono",
+                          fontSize: 10,
+                          padding: "2px 8px",
+                          borderRadius: 3,
+                          background: "#13161b",
+                          border: "1px solid #1e2430",
+                          color: "#00a36e",
+                        }}
+                      >
+                        ◆{" "}
+                        {(source as string)
+                          .replace(/\\/g, "/")
+                          .split("/")
+                          .slice(-2)
+                          .join("/")}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
@@ -152,8 +210,8 @@ export default function ChatPanel() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault()
-                sendMessage()
+                e.preventDefault();
+                sendMessage();
               }
             }}
             disabled={loading}
@@ -163,7 +221,9 @@ export default function ChatPanel() {
             disabled={loading || !input.trim()}
             className="flex items-center justify-center rounded font-bold transition-all"
             style={{
-              width: 36, height: 36, fontSize: 14,
+              width: 36,
+              height: 36,
+              fontSize: 14,
               background: loading || !input.trim() ? "#0e1014" : "#00e5a0",
               color: loading || !input.trim() ? "#475569" : "#000",
               border: "1px solid #1e2430",
@@ -173,13 +233,18 @@ export default function ChatPanel() {
             →
           </button>
         </div>
-        <p style={{ fontSize: 10, color: "#475569", fontFamily: "JetBrains Mono" }}>
+        <p
+          style={{
+            fontSize: 10,
+            color: "#475569",
+            fontFamily: "JetBrains Mono",
+          }}
+        >
           Enter to send · Shift+Enter for new line
         </p>
-
       </div>
 
       <style>{`@keyframes pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }`}</style>
     </div>
-  )
+  );
 }
