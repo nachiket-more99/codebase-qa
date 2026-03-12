@@ -228,6 +228,42 @@ export default function IngestPanel() {
           CLEAR INDEX
         </button>
       </div>
+
+      {/* Terminal log */}
+      {log.length > 0 && (
+        <div
+          className="rounded overflow-hidden"
+          style={{ background: "#060709", border: "1px solid #1e2430" }}
+        >
+          <div
+            className="px-4 py-2 border-b"
+            style={{ borderColor: "#1e2430", background: "#0e1014" }}
+          >
+            <span style={{ fontSize: 10, color: "#334155", letterSpacing: "0.1em", fontFamily: "JetBrains Mono" }}>
+              // output
+            </span>
+          </div>
+          {log.map((entry) => (
+            <div
+              key={entry.id}
+              className="flex gap-2 px-4 py-1"
+              style={{ fontSize: 12, fontFamily: "JetBrains Mono" }}
+            >
+              <span style={{ color: "#334155" }}>&gt;</span>
+              <span style={{ color: logColor[entry.type] }}>{entry.msg}</span>
+            </div>
+          ))}
+          {loading && (
+            <div
+              className="px-4 py-1"
+              style={{ fontSize: 12, fontFamily: "JetBrains Mono", color: "#00e5a0" }}
+            >
+              <span style={{ animation: "blink 0.8s steps(1) infinite" }}>█</span>
+            </div>
+          )}
+        </div>
+      )}
+      
     </div>
   );
 }
