@@ -35,14 +35,38 @@ def root():
         }
     }
 
+# @app.get("/status")
+# def status():
+#     empty = is_vectorstore_empty()
+#     return {
+#         "status": "ready" if not empty else "empty",
+#         "has_data": not empty,
+#         "message": "Code is ingested and ready for questions" if not empty else "No code ingested yet. Use POST /ingest first."
+#     }
 @app.get("/status")
 def status():
-    empty = is_vectorstore_empty()
-    return {
-        "status": "ready" if not empty else "empty",
-        "has_data": not empty,
-        "message": "Code is ingested and ready for questions" if not empty else "No code ingested yet. Use POST /ingest first."
-    }
+    import chromadb
+    client = chromadb.PersistentClient(path="./chroma_db")
+    try:
+        collection = client.get_collection(name="codebase")
+        count = collection.count()
+        files = list(set([
+            m["source"] for m in 
+            collection.get(include=["metadatas"])["metadatas"]
+        ]))
+        return {
+            "status": "ready" if count > 0 else "empty",
+            "has_data": count > 0,
+            "total_chunks": count,
+            "total_files": len(files),
+        }
+    except Exception:
+        return {
+            "status": "empty",
+            "has_data": False,
+            "total_chunks": 0,
+            "total_files": 0,
+        }
 
 @app.post("/ingest")
 async def ingest(file: UploadFile = File(...)):
