@@ -13,6 +13,7 @@ export default function ChatPanel() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [topK, setTopK] = useState(5);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -27,7 +28,8 @@ export default function ChatPanel() {
     setLoading(true);
 
     try {
-      const data = await askQuestion(q);
+      const data = await askQuestion(q, topK);
+
       setMessages((prev) => [
         ...prev.filter((m) => m.role !== "thinking"),
         {
@@ -57,44 +59,122 @@ export default function ChatPanel() {
           border: "1px solid #1e2430",
         }}
       >
-        <p style={{ fontSize: 10, color: "#475569", fontFamily: "JetBrains Mono", letterSpacing: "0.1em", marginBottom: 8 }}>
-  // suggestions
-</p>
-<div className="flex flex-col gap-1">
-  {[
-    "What does this codebase do?",
-    "How is authentication handled?",
-    "Explain the main data models",
-    "Where are API endpoints defined?",
-    "How does error handling work?",
-  ].map((s, i) => (
-    <button
-      key={i}
-      onClick={() => sendMessage(s)}
-      disabled={loading}
-      className="text-left rounded px-2 py-2 transition-all"
-      style={{
-        fontFamily: "JetBrains Mono",
-        fontSize: 10,
-        color: "#64748b",
-        border: "1px solid transparent",
-        lineHeight: 1.5,
-        background: "none",
-        cursor: "pointer",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget).style.color = "#00e5a0"
-        ;(e.currentTarget).style.borderColor = "#1e2430"
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget).style.color = "#64748b"
-        ;(e.currentTarget).style.borderColor = "transparent"
-      }}
-    >
-      {s}
-    </button>
-  ))}
-</div>
+        <p
+          style={{
+            fontSize: 10,
+            color: "#475569",
+            fontFamily: "JetBrains Mono",
+            letterSpacing: "0.1em",
+            marginBottom: 8,
+          }}
+        >
+          // suggestions
+        </p>
+        <div className="flex flex-col gap-1">
+          {[
+            "What does this codebase do?",
+            "How is authentication handled?",
+            "Explain the main data models",
+            "Where are API endpoints defined?",
+            "How does error handling work?",
+          ].map((s, i) => (
+            <button
+              key={i}
+              onClick={() => sendMessage(s)}
+              disabled={loading}
+              className="text-left rounded px-2 py-2 transition-all"
+              style={{
+                fontFamily: "JetBrains Mono",
+                fontSize: 10,
+                color: "#64748b",
+                border: "1px solid transparent",
+                lineHeight: 1.5,
+                background: "none",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#00e5a0";
+                e.currentTarget.style.borderColor = "#1e2430";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "#64748b";
+                e.currentTarget.style.borderColor = "transparent";
+              }}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        {/* top_k config */}
+        <div
+          className="flex flex-col gap-2 pt-3"
+          style={{ borderTop: "1px solid #1e2430" }}
+        >
+          <p
+            style={{
+              fontSize: 10,
+              color: "#475569",
+              fontFamily: "JetBrains Mono",
+              letterSpacing: "0.1em",
+            }}
+          >
+            // config
+          </p>
+          <div className="flex items-center justify-between">
+            <span
+              style={{
+                fontSize: 11,
+                color: "#64748b",
+                fontFamily: "JetBrains Mono",
+              }}
+            >
+              top_k
+            </span>
+            <input
+              type="number"
+              min={1}
+              max={20}
+              value={topK}
+              onChange={(e) => setTopK(Number(e.target.value))}
+              className="outline-none text-center rounded"
+              style={
+                {
+                  width: 52,
+                  background: "#13161b",
+                  border: "1px solid #1e2430",
+                  color: "#00e5a0",
+                  fontFamily: "JetBrains Mono",
+                  fontSize: 12,
+                  padding: "4px 8px",
+                  appearance: "none",
+                  MozAppearance: "textfield",
+                } as React.CSSProperties
+              }
+            />
+          </div>
+        </div>
+
+        {/* Clear chat */}
+        <div
+          className="mt-auto pt-3"
+          style={{ borderTop: "1px solid #1e2430" }}
+        >
+          <button
+            onClick={() => setMessages([])}
+            disabled={loading}
+            className="w-full py-2 rounded text-xs tracking-widest transition-all"
+            style={{
+              fontFamily: "JetBrains Mono",
+              border: "1px solid #1e2430",
+              color: "#64748b",
+              background: "none",
+              cursor: "pointer",
+              fontSize: 10,
+            }}
+          >
+            CLEAR CHAT
+          </button>
+        </div>
       </div>
 
       {/* Main */}
