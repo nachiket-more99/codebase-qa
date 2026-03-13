@@ -7,7 +7,7 @@ Point it at a GitHub repository or upload a code file - then ask questions like:
 - *"Where is Redis used?"*
 - *"What happens when a transfer is made?"*
 
-Built with FastAPI, LangChain, ChromaDB, and OpenAI.
+Built with React, TypeScript, Tailwind CSS, shadcn, FastAPI, LangChain, ChromaDB, and OpenAI.
 
 ---
 
@@ -44,6 +44,7 @@ Answer + source file references
 | LLM | GPT-4o-mini |
 | Vector Database | ChromaDB |
 | Repo Cloning | GitPython |
+| Frontend | React, TypeScript, Tailwind CSS, shadcn |
 
 ---
 
@@ -77,6 +78,16 @@ uvicorn main:app --reload
 ```
 
 API is live at `http://localhost:8000`
+
+### Run the Frontend
+```bash
+cd frontend
+npm install
+cp .env.example .env.local   # set VITE_API_URL=http://localhost:8000
+npm run dev
+```
+
+Frontend is live at `http://localhost:5173`
 
 ---
 
@@ -138,3 +149,7 @@ Clear all ingested data from ChromaDB.
 **Language-aware chunking** - Uses LangChain's language-specific splitters for TypeScript, JavaScript, Python and more - splits at function and class boundaries rather than arbitrary character counts.
 
 **Source citations** - Every answer includes the exact files and chunk indices it was derived from, so you can verify accuracy.
+
+## Live Demo
+- Frontend: 
+- Backend: 
