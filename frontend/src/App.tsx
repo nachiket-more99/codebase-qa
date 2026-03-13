@@ -63,7 +63,7 @@ export default function App() {
 
       {/* Main */}
       <main className="flex-1 overflow-hidden flex flex-col p-6">
-        {activeTab === "ingest" ? <IngestPanel /> : <ChatPanel />}
+        {activeTab === "ingest" ? <IngestPanel onComplete={() => setActiveTab("chat")} /> : <ChatPanel />}
       </main>
 
       {/* Footer */}

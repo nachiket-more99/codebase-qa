@@ -21,7 +21,7 @@ const logColor = {
   detail: "#334155",
 };
 
-export default function IngestPanel() {
+export default function IngestPanel({ onComplete }: { onComplete: () => void }) {
   const [mode, setMode] = useState<Mode>("github");
   const [githubUrl, setGithubUrl] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -54,6 +54,8 @@ export default function IngestPanel() {
           `files: ${data.total_files_ingested ?? "?"}  chunks: ${data.total_chunks_created ?? "?"}`,
           "detail",
         );
+        push(`✓ ready — switching to chat...`, "success")
+setTimeout(() => onComplete(), 1500)
       } else if (mode === "single") {
         if (!files[0]) {
           push("Select a file first.", "error");
@@ -64,6 +66,8 @@ export default function IngestPanel() {
         const data = await ingestSingleFile(files[0]);
         push(`${data.file} indexed successfully`, "success");
         push(`chunks: ${data.chunks_created ?? "?"}`, "detail");
+        push(`✓ ready — switching to chat...`, "success")
+setTimeout(() => onComplete(), 1500)
       } else {
         if (!files.length) {
           push("Select files first.", "error");
@@ -76,6 +80,8 @@ export default function IngestPanel() {
           `${data.total_files_ingested} file(s) indexed successfully`,
           "success",
         );
+        push(`✓ ready — switching to chat...`, "success")
+setTimeout(() => onComplete(), 1500)
         data.ingested_files?.forEach((f: any) =>
           push(`  ${f.file}: ${f.chunks ?? "?"} chunks`, "detail"),
         );
