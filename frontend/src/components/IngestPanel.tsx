@@ -45,7 +45,11 @@ export default function IngestPanel() {
         }
         push(`Cloning → ${githubUrl}`);
         const data = await ingestRepo(githubUrl);
-        push(`${data.message}`, "success");
+        push(
+          `${data.total_files_ingested} file(s) indexed successfully`,
+          "success",
+        );
+
         push(
           `files: ${data.total_files_ingested ?? "?"}  chunks: ${data.total_chunks_created ?? "?"}`,
           "detail",
@@ -58,7 +62,7 @@ export default function IngestPanel() {
         }
         push(`Uploading → ${files[0].name}`);
         const data = await ingestSingleFile(files[0]);
-        push(`${data.message}`, "success");
+        push(`${data.file} indexed successfully`, "success");
         push(`chunks: ${data.chunks_created ?? "?"}`, "detail");
       } else {
         if (!files.length) {
@@ -68,7 +72,10 @@ export default function IngestPanel() {
         }
         push(`Uploading ${files.length} files...`);
         const data = await ingestMultipleFiles(files);
-        push(`${data.message}`, "success");
+        push(
+          `${data.total_files_ingested} file(s) indexed successfully`,
+          "success",
+        );
         data.ingested_files?.forEach((f: any) =>
           push(`  ${f.file}: ${f.chunks ?? "?"} chunks`, "detail"),
         );
@@ -239,7 +246,14 @@ export default function IngestPanel() {
             className="px-4 py-2 border-b"
             style={{ borderColor: "#1e2430", background: "#0e1014" }}
           >
-            <span style={{ fontSize: 10, color: "#334155", letterSpacing: "0.1em", fontFamily: "JetBrains Mono" }}>
+            <span
+              style={{
+                fontSize: 10,
+                color: "#334155",
+                letterSpacing: "0.1em",
+                fontFamily: "JetBrains Mono",
+              }}
+            >
               // output
             </span>
           </div>
@@ -256,14 +270,19 @@ export default function IngestPanel() {
           {loading && (
             <div
               className="px-4 py-1"
-              style={{ fontSize: 12, fontFamily: "JetBrains Mono", color: "#00e5a0" }}
+              style={{
+                fontSize: 12,
+                fontFamily: "JetBrains Mono",
+                color: "#00e5a0",
+              }}
             >
-              <span style={{ animation: "blink 0.8s steps(1) infinite" }}>█</span>
+              <span style={{ animation: "blink 0.8s steps(1) infinite" }}>
+                █
+              </span>
             </div>
           )}
         </div>
       )}
-      
     </div>
   );
 }
