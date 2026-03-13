@@ -9,7 +9,8 @@ from config import (
     CHROMA_DB_PATH,
     COLLECTION_NAME,
     CHUNK_SIZE,
-    CHUNK_OVERLAP
+    CHUNK_OVERLAP,
+    LLM_MODEL
 )
 
 EXTENSION_TO_LANGUAGE = {
@@ -313,3 +314,14 @@ No explanation, no markdown, no code fences. Just the JSON array.""")
     except Exception as e:
         print(f"LLM filtering failed: {e}. Using original file list.")
         return file_paths
+
+def clear_collection() -> dict:
+    import chromadb
+
+    client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
+
+    try:
+        client.delete_collection(name=COLLECTION_NAME)
+        return {"status": "success", "message": "Collection cleared"}
+    except Exception:
+        return {"status": "success", "message": "Nothing to clear"}
