@@ -57,16 +57,44 @@ export default function ChatPanel() {
           border: "1px solid #1e2430",
         }}
       >
-        <p
-          style={{
-            fontSize: 10,
-            color: "#475569",
-            fontFamily: "JetBrains Mono",
-            letterSpacing: "0.1em",
-          }}
-        >
-          // suggestions
-        </p>
+        <p style={{ fontSize: 10, color: "#475569", fontFamily: "JetBrains Mono", letterSpacing: "0.1em", marginBottom: 8 }}>
+  // suggestions
+</p>
+<div className="flex flex-col gap-1">
+  {[
+    "What does this codebase do?",
+    "How is authentication handled?",
+    "Explain the main data models",
+    "Where are API endpoints defined?",
+    "How does error handling work?",
+  ].map((s, i) => (
+    <button
+      key={i}
+      onClick={() => sendMessage(s)}
+      disabled={loading}
+      className="text-left rounded px-2 py-2 transition-all"
+      style={{
+        fontFamily: "JetBrains Mono",
+        fontSize: 10,
+        color: "#64748b",
+        border: "1px solid transparent",
+        lineHeight: 1.5,
+        background: "none",
+        cursor: "pointer",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget).style.color = "#00e5a0"
+        ;(e.currentTarget).style.borderColor = "#1e2430"
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget).style.color = "#64748b"
+        ;(e.currentTarget).style.borderColor = "transparent"
+      }}
+    >
+      {s}
+    </button>
+  ))}
+</div>
       </div>
 
       {/* Main */}
