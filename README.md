@@ -151,5 +151,5 @@ Clear all ingested data from ChromaDB.
 **Source citations** - Every answer includes the exact files and chunk indices it was derived from, so you can verify accuracy.
 
 ## Live Demo
-- Frontend: 
-- Backend: 
+- **Frontend**: https://codebase-qa-iota.vercel.app/
+- **Backend**: https://codebase-qa-m8p5.onrender.com/
